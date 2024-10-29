@@ -1,9 +1,8 @@
-import torch
 import polars as pl
 from lightning import LightningDataModule
 from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import DataLoader
-from datasets import Dataset, load_dataset
+from datasets import Dataset, DatasetDict
 from transformers import AutoTokenizer
 from torchvision.transforms import v2 as transforms
 from pathlib import Path
@@ -11,7 +10,8 @@ from PIL import Image
 
 
 class Flickr30kDataModule(LightningDataModule):
-    """`LightningDataModule` for the Flickr30k dataset.
+    """
+    LightningDataModule for the Flickr30k dataset.
     """
 
     def __init__(
@@ -24,7 +24,8 @@ class Flickr30kDataModule(LightningDataModule):
         pin_memory: bool = False,
         seed: int = 42,
     ) -> None:
-        """Initialize a Flickr30kDataModule instance.
+        """
+        Initialize a Flickr30kDataModule instance.
 
         Parameters
         ----------
@@ -42,7 +43,7 @@ class Flickr30kDataModule(LightningDataModule):
             The seed to use for reproducibility, by default 42.
         """
         super().__init__()
-        assert sum(train_val_test_split) == 1.0, \
+        assert 1 < len(train_val_test_split) < 4 and 0 < sum(train_val_test_split) <= 1.0, \
             "The sum of train_val_test_split must be 1.0."
 
         # this line allows to access init params with 'self.hparams' attribute
@@ -59,12 +60,18 @@ class Flickr30kDataModule(LightningDataModule):
             ]
         )
 
-        self.dataset: Optional[Dataset] = None
+        self.dataset: Optional[DatasetDict] = None
 
         self.batch_size_per_device = batch_size
 
     def setup(self, stage: Optional[str] = None) -> None:
-        """Load data.
+        """
+        Load data and split it into training, validation, and test sets.
+
+        Parameters
+        ----------
+        stage : Optional[str], optional
+            The stage to setup, by default
         """
         def transform(batch):
             images = [
@@ -109,18 +116,38 @@ class Flickr30kDataModule(LightningDataModule):
                     "comment": pl.String,
                 },
             )
-            self.dataset = Dataset.from_polars(df)
-            self.dataset = self.dataset.train_test_split(
-                test_size=self.hparams.train_val_test_split[2],
-                shuffle=True,
-                seed=self.hparams.seed,
-            )
+            dataset = Dataset.from_polars(df).shuffle(seed=self.hparams.seed)
+            if len(self.hparams.train_val_test_split) == 2:
+                self.dataset = dataset.train_test_split(
+                    train_size=self.hparams.train_val_test_split[0],
+                    test_size=self.hparams.train_val_test_split[1],
+                    shuffle=False,
+                )
+            else:
+                self.dataset = dataset.train_test_split(
+                    train_size=sum(self.hparams.train_val_test_split[:2]),
+                    test_size=self.hparams.train_val_test_split[2],
+                    shuffle=False,
+                )
+                train_val_splits = self.dataset["train"].train_test_split(
+                    train_size=self.hparams.train_val_test_split[0],
+                    shuffle=False,
+                )
+                self.dataset = DatasetDict({
+                    "train": train_val_splits["train"],
+                    "val": train_val_splits["test"],
+                    "test": self.dataset["test"],
+                })
             self.dataset.set_transform(transform)
 
     def train_dataloader(self) -> DataLoader[Any]:
-        """Create and return the train dataloader.
+        """
+        Create and return the train dataloader.
 
-        :return: The train dataloader.
+        Returns
+        -------
+        DataLoader[Any]
+            The train dataloader.
         """
         return DataLoader(
             dataset=self.dataset["train"],
@@ -131,9 +158,13 @@ class Flickr30kDataModule(LightningDataModule):
         )
 
     def val_dataloader(self) -> DataLoader[Any]:
-        """Create and return the validation dataloader.
+        """
+        Create and return the validation dataloader.
 
-        :return: The validation dataloader.
+        Returns
+        -------
+        DataLoader[Any]
+            The validation dataloader.
         """
         data_val = self.dataset["val"] if "val" in self.dataset else self.dataset["test"]
         return DataLoader(
@@ -145,9 +176,13 @@ class Flickr30kDataModule(LightningDataModule):
         )
 
     def test_dataloader(self) -> DataLoader[Any]:
-        """Create and return the test dataloader.
+        """
+        Create and return the test dataloader.
 
-        :return: The test dataloader.
+        Returns
+        -------
+        DataLoader[Any]
+            The test dataloader.
         """
         return DataLoader(
             dataset=self.dataset["test"],
@@ -158,26 +193,37 @@ class Flickr30kDataModule(LightningDataModule):
         )
 
     def teardown(self, stage: Optional[str] = None) -> None:
-        """Lightning hook for cleaning up after `trainer.fit()`, `trainer.validate()`,
-        `trainer.test()`, and `trainer.predict()`.
+        """
+        Lightning hook for cleaning up after trainer.fit(), trainer.validate(),
+        trainer.test(), and `trainer.predict().
 
-        :param stage: The stage being torn down. Either `"fit"`, `"validate"`, `"test"`, or `"predict"`.
-            Defaults to ``None``.
+        Parameters
+        ----------
+        stage : Optional[str], optional
+            The stage to teardown, by default
         """
         pass
 
     def state_dict(self) -> Dict[Any, Any]:
-        """Called when saving a checkpoint. Implement to generate and save the datamodule state.
+        """
+        Called when saving a checkpoint. Implement to generate and save the datamodule state.
 
-        :return: A dictionary containing the datamodule state that you want to save.
+        Returns
+        -------
+        Dict[Any, Any]
+            The datamodule state to be saved.
         """
         return {}
 
     def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
-        """Called when loading a checkpoint. Implement to reload datamodule state given datamodule
-        `state_dict()`.
+        """
+        Called when loading a checkpoint. Implement to reload datamodule state given datamodule
+        state_dict().
 
-        :param state_dict: The datamodule state returned by `self.state_dict()`.
+        Parameters
+        ----------
+        state_dict : Dict[str, Any]
+            The datamodule state to be loaded.
         """
         pass
 
