@@ -1,10 +1,8 @@
 import os
-from pathlib import Path
-
 import pytest
+from pathlib import Path
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, open_dict
-
 from src.train import train
 from tests.helpers.run_if import RunIf
 
@@ -37,9 +35,13 @@ def test_train_fast_dev_run_gpu(cfg_train: DictConfig) -> None:
 @RunIf(min_gpus=1)
 @pytest.mark.slow
 def test_train_epoch_gpu_amp(cfg_train: DictConfig) -> None:
-    """Train 1 epoch on GPU with mixed-precision.
+    """
+    Train 1 epoch on GPU with mixed-precision.
 
-    :param cfg_train: A DictConfig containing a valid training configuration.
+    Parameters
+    ----------
+    cfg_train : DictConfig
+        A DictConfig containing a valid training configuration
     """
     HydraConfig().set_config(cfg_train)
     with open_dict(cfg_train):
@@ -51,9 +53,13 @@ def test_train_epoch_gpu_amp(cfg_train: DictConfig) -> None:
 
 @pytest.mark.slow
 def test_train_epoch_double_val_loop(cfg_train: DictConfig) -> None:
-    """Train 1 epoch with validation loop twice per epoch.
+    """
+    Train 1 epoch with validation loop twice per epoch.
 
-    :param cfg_train: A DictConfig containing a valid training configuration.
+    Parameters
+    ----------
+    cfg_train : DictConfig
+        A DictConfig containing a valid training configuration.
     """
     HydraConfig().set_config(cfg_train)
     with open_dict(cfg_train):
@@ -64,9 +70,13 @@ def test_train_epoch_double_val_loop(cfg_train: DictConfig) -> None:
 
 @pytest.mark.slow
 def test_train_ddp_sim(cfg_train: DictConfig) -> None:
-    """Simulate DDP (Distributed Data Parallel) on 2 CPU processes.
+    """
+    Simulate DDP (Distributed Data Parallel) on 2 CPU processes.
 
-    :param cfg_train: A DictConfig containing a valid training configuration.
+    Parameters
+    ----------
+    cfg_train : DictConfig
+        A DictConfig containing a valid training configuration.
     """
     HydraConfig().set_config(cfg_train)
     with open_dict(cfg_train):
@@ -79,10 +89,15 @@ def test_train_ddp_sim(cfg_train: DictConfig) -> None:
 
 @pytest.mark.slow
 def test_train_resume(tmp_path: Path, cfg_train: DictConfig) -> None:
-    """Run 1 epoch, finish, and resume for another epoch.
+    """
+    Run 1 epoch, finish, and resume for another epoch.
 
-    :param tmp_path: The temporary logging path.
-    :param cfg_train: A DictConfig containing a valid training configuration.
+    Parameters
+    ----------
+    tmp_path : Path
+        A temporary directory for storing checkpoints.
+    cfg_train : DictConfig
+        A DictConfig containing a valid training configuration
     """
     with open_dict(cfg_train):
         cfg_train.trainer.max_epochs = 1

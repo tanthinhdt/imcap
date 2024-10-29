@@ -1,9 +1,8 @@
 """This file prepares config fixtures for other tests."""
 
-from pathlib import Path
-
 import pytest
 import rootutils
+from pathlib import Path
 from hydra import compose, initialize
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import DictConfig, open_dict
@@ -11,9 +10,13 @@ from omegaconf import DictConfig, open_dict
 
 @pytest.fixture(scope="package")
 def cfg_train_global() -> DictConfig:
-    """A pytest fixture for setting up a default Hydra DictConfig for training.
+    """
+    A pytest fixture for setting up a default Hydra DictConfig for training.
 
-    :return: A DictConfig object containing a default Hydra configuration for training.
+    Returns
+    -------
+    DictConfig
+        A DictConfig containing a default Hydra configuration for training.
     """
     with initialize(version_base="1.3", config_path="../configs"):
         cfg = compose(config_name="train.yaml", return_hydra_config=True, overrides=[])
@@ -38,9 +41,13 @@ def cfg_train_global() -> DictConfig:
 
 @pytest.fixture(scope="package")
 def cfg_eval_global() -> DictConfig:
-    """A pytest fixture for setting up a default Hydra DictConfig for evaluation.
+    """
+    A pytest fixture for setting up a default Hydra DictConfig for evaluation.
 
-    :return: A DictConfig containing a default Hydra configuration for evaluation.
+    Returns
+    -------
+    DictConfig
+        A DictConfig containing a default Hydra configuration for evaluation.
     """
     with initialize(version_base="1.3", config_path="../configs"):
         cfg = compose(config_name="eval.yaml", return_hydra_config=True, overrides=["ckpt_path=."])
@@ -63,15 +70,25 @@ def cfg_eval_global() -> DictConfig:
 
 @pytest.fixture(scope="function")
 def cfg_train(cfg_train_global: DictConfig, tmp_path: Path) -> DictConfig:
-    """A pytest fixture built on top of the `cfg_train_global()` fixture, which accepts a temporary
-    logging path `tmp_path` for generating a temporary logging path.
+    """
+    A pytest fixture built on top of the cfg_train_global() fixture,
+    which accepts a temporary logging path tmp_path for
+    generating a temporary logging path.
 
-    This is called by each test which uses the `cfg_train` arg. Each test generates its own temporary logging path.
+    This is called by each test which uses the cfg_train arg.
+    Each test generates its own temporary logging path.
 
-    :param cfg_train_global: The input DictConfig object to be modified.
-    :param tmp_path: The temporary logging path.
+    Parameters
+    ----------
+    cfg_train_global : DictConfig
+        The input DictConfig object to be modified.
+    tmp_path : Path
+        The temporary logging path.
 
-    :return: A DictConfig with updated output and log directories corresponding to `tmp_path`.
+    Returns
+    -------
+    DictConfig
+        A DictConfig with updated output and log directories corresponding to tmp
     """
     cfg = cfg_train_global.copy()
 
@@ -86,15 +103,25 @@ def cfg_train(cfg_train_global: DictConfig, tmp_path: Path) -> DictConfig:
 
 @pytest.fixture(scope="function")
 def cfg_eval(cfg_eval_global: DictConfig, tmp_path: Path) -> DictConfig:
-    """A pytest fixture built on top of the `cfg_eval_global()` fixture, which accepts a temporary
-    logging path `tmp_path` for generating a temporary logging path.
+    """
+    A pytest fixture built on top of the cfg_eval_global() fixture,
+    which accepts a temporary logging path tmp_path for
+    generating a temporary logging path.
 
-    This is called by each test which uses the `cfg_eval` arg. Each test generates its own temporary logging path.
+    This is called by each test which uses the cfg_eval arg.
+    Each test generates its own temporary logging path.
 
-    :param cfg_train_global: The input DictConfig object to be modified.
-    :param tmp_path: The temporary logging path.
+    Parameters
+    ----------
+    cfg_eval_global : DictConfig
+        The input DictConfig object to be modified.
+    tmp_path : Path
+        The temporary logging path.
 
-    :return: A DictConfig with updated output and log directories corresponding to `tmp_path`.
+    Returns
+    -------
+    DictConfig
+        A DictConfig with updated output and log directories corresponding to tmp
     """
     cfg = cfg_eval_global.copy()
 
