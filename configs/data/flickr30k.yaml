@@ -1,0 +1,7 @@
+_target_: src.data.mnist_datamodule.Flickr30kDataModule
+data_dir: ${paths.data_dir}/flickr30k
+train_val_test_split: [0.8, 0.2]
+batch_size: 128 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+num_workers: 0
+pin_memory: False
+seed: 42
