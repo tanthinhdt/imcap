@@ -30,7 +30,9 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         A tuple containing the train, validation, and test split ratios.
     """
     data_dir = "data/"
-    tokenizer = "bert-base-uncased"
+    processor = "Salesforce/blip-image-captioning-base"
+    image_size = 384
+    max_length = 128
 
     data_dir = Path(data_dir)
     assert data_dir.exists(), \
@@ -46,7 +48,8 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
 
     dm = Flickr30kDataModule(
         data_dir=dataset_dir,
-        tokenizer=tokenizer,
+        processor=processor,
+        max_length=max_length,
         train_val_test_split=train_val_test_split,
         batch_size=batch_size,
     )
@@ -72,28 +75,18 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         "Dataloaders should be created after calling `setup`."
     batch = next(iter(dm.train_dataloader()))
 
-    assert batch["images"].shape == (batch_size, 3, 224, 224), \
+    assert batch["pixel_values"].shape == (batch_size, 3, image_size, image_size), \
         (
-            f"Images shape mismatch. Expected {(batch_size, 3, 224, 224)}, "
-            f"but got {batch['images'].shape}."
+            f"Images shape mismatch. Expected {(batch_size, 3, image_size, image_size)}, "
+            f"but got {batch['pixel_values'].shape}."
         )
-    assert batch["input_ids"].shape == (batch_size, 128), \
+    assert batch["input_ids"].shape == (batch_size, max_length), \
         (
-            f"Input IDs shape mismatch. Expected {(batch_size, 128)}, "
+            f"Input IDs shape mismatch. Expected {(batch_size, max_length)}, "
             f"but got {batch['input_ids'].shape}."
         )
-    assert batch["attention_mask"].shape == (batch_size, 128), \
+    assert batch["attention_mask"].shape == (batch_size, max_length), \
         (
-            f"Attention Mask shape mismatch. Expected {(batch_size, 128)}, "
-            f"but got {batch['input_ids'].shape}."
-        )
-    assert batch["token_type_ids"].shape == (batch_size, 128), \
-        (
-            f"Token Type IDs shape mismatch. Expected {(batch_size, 128)}, "
-            f"but got {batch['token_type_ids'].shape}."
-        )
-    assert batch["comment_number"].shape == (batch_size,), \
-        (
-            f"Comment Number shape mismatch. Expected {(batch_size,)}, "
-            f"but got {batch['comment_number'].shape}."
+            f"Attention Mask shape mismatch. Expected {(batch_size, max_length)}, "
+            f"but got {batch['attention_mask'].shape}."
         )
