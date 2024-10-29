@@ -3,7 +3,7 @@ from lightning import LightningDataModule
 from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import DataLoader
 from datasets import Dataset, DatasetDict
-from transformers import AutoTokenizer
+from transformers import AutoProcessor
 from torchvision.transforms import v2 as transforms
 from pathlib import Path
 from PIL import Image
@@ -16,8 +16,9 @@ class Flickr30kDataModule(LightningDataModule):
 
     def __init__(
         self,
+        processor: str,
         data_dir: str = "data/flickr30k",
-        tokenizer: str = "bert-base-uncased",
+        max_length: int = 128,
         train_val_test_split: Tuple[float] = (0.8, 0.1, 0.1),
         batch_size: int = 64,
         num_workers: int = 0,
@@ -51,7 +52,7 @@ class Flickr30kDataModule(LightningDataModule):
         self.save_hyperparameters(logger=False)
 
         # data transformations
-        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+        self.processor = AutoProcessor.from_pretrained(processor)
         self.transforms = transforms.Compose(
             [
                 transforms.ToTensor(),
@@ -75,26 +76,17 @@ class Flickr30kDataModule(LightningDataModule):
         """
         def transform(batch):
             images = [
-                Image.open(Path(self.hparams.data_dir) / "flickr30k_images" / image_name)
+                Image.open(Path(self.hparams.data_dir) / f"flickr30k_images/{image_name}")
                 for image_name in batch["image_name"]
             ]
-            images = [self.transforms(image) for image in images]
-
-            comments = self.tokenizer(
-                text=[s.strip() for s in batch["comment"]],
+            texts = [comment.strip() for comment in batch["comment"]]
+            return self.processor(
+                images=images,
+                text=texts,
                 padding="max_length",
-                max_length=128,
-                truncation=True,
+                max_length=self.hparams.max_length,
                 return_tensors="pt",
             )
-
-            return {
-                "images": images,
-                "input_ids": comments["input_ids"],
-                "attention_mask": comments["attention_mask"],
-                "token_type_ids": comments["token_type_ids"],
-                "comment_number": batch["comment_number"],
-            }
 
         # Divide batch size by the number of devices.
         if self.trainer is not None:
@@ -229,4 +221,8 @@ class Flickr30kDataModule(LightningDataModule):
 
 
 if __name__ == "__main__":
-    _ = Flickr30kDataModule()
+    processor = "Salesforce/blip-image-captioning-base"
+    dm = Flickr30kDataModule(processor=processor)
+    dm.setup()
+    batch = next(iter(dm.train_dataloader()))
+    print(batch.keys())
