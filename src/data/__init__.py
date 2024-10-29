@@ -1,0 +1,1 @@
+from .flickr30k_datamodule import Flickr30kDataModule
