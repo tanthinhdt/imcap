@@ -25,5 +25,6 @@ rootutils       # standardizing the project root setup
 pre-commit      # hooks for applying linters on commit
 rich            # beautiful text formatting in terminal
 pytest          # tests
-polars
+polars          # for working with large datasets
+streamlit       # for deploying the model with streamlit
 # sh            # for running bash commands in some tests (linux/macos only)
