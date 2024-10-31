@@ -80,13 +80,15 @@ class Flickr30kDataModule(LightningDataModule):
                 for image_name in batch["image_name"]
             ]
             texts = [comment.strip() for comment in batch["comment"]]
-            return self.processor(
+            batch = self.processor(
                 images=images,
                 text=texts,
                 padding="max_length",
                 max_length=self.hparams.max_length,
                 return_tensors="pt",
             )
+            batch.update({"labels": batch["input_ids"]})
+            return batch
 
         # Divide batch size by the number of devices.
         if self.trainer is not None:
