@@ -57,6 +57,7 @@ data:
 
 logger:
   wandb:
+    name: flickr30k_blip-base_v1-0
     id: null
     project: "IMCAP"
     tags: ${tags}
