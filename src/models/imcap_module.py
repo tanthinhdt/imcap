@@ -131,7 +131,7 @@ class IMCAPLitModule(LightningModule):
         self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.train_wer(preds, targets)
         self.log("train/wer", self.train_wer, on_step=False, on_epoch=True, prog_bar=True)
-        self.train_bleu(preds, targets)
+        self.train_bleu(preds, [target for target in targets])
         self.log("train/bleu", self.train_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
@@ -162,7 +162,7 @@ class IMCAPLitModule(LightningModule):
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.val_wer(preds, targets)
         self.log("val/wer", self.val_wer, on_step=False, on_epoch=True, prog_bar=True)
-        self.val_bleu(preds, targets)
+        self.val_bleu(preds, [target for target in targets])
         self.log("val/bleu", self.val_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
@@ -175,7 +175,7 @@ class IMCAPLitModule(LightningModule):
 
         bleu = self.val_bleu.compute()
         self.val_bleu_best(bleu)
-        self.log("val/bleu_best", bleu, sync_dist=True, prog_bar=True)
+        self.log("val/bleu_best", self.test_bleu_best.compute(), sync_dist=True, prog_bar=True)
 
     def test_step(self, batch: Dict[str, torch.Tensor], batch_idx: int) -> None:
         """
@@ -195,7 +195,7 @@ class IMCAPLitModule(LightningModule):
         self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
         self.test_wer(preds, targets)
         self.log("test/wer", self.test_wer, on_step=False, on_epoch=True, prog_bar=True)
-        self.test_bleu(preds, targets)
+        self.test_bleu(preds, [target for target in targets])
         self.log("test/bleu", self.test_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
@@ -208,7 +208,7 @@ class IMCAPLitModule(LightningModule):
 
         bleu = self.test_bleu.compute()
         self.test_bleu_best(bleu)
-        self.log("test/bleu_best", bleu, sync_dist=True, prog_bar=True)
+        self.log("test/bleu_best", self.test_bleu_best.compute(), sync_dist=True, prog_bar=True)
 
     def setup(self, stage: str) -> None:
         """
