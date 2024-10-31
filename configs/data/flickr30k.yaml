@@ -1,9 +1,9 @@
 _target_: src.data.flickr30k_datamodule.Flickr30kDataModule
 processor: Salesforce/blip-image-captioning-base
 data_dir: ${paths.data_dir}/flickr30k
-max_length: 128
+max_length: 64
 train_val_test_split: [0.8, 0.2] # train, (val,) test
-batch_size: 8 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
+batch_size: 16 # Needs to be divisible by the number of devices (e.g., if in a distributed setup)
 num_workers: 2
 pin_memory: False
 seed: 42
