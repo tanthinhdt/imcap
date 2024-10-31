@@ -18,5 +18,10 @@ net:
   pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
   cache_dir: models/huggingface
 
+processor:
+  _target_: transformers.AutoProcessor.from_pretrained
+  pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+  cache_dir: models/huggingface
+
 # compile model for faster training with pytorch 2.0
 compile: false
