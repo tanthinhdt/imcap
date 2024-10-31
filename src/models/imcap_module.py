@@ -73,7 +73,9 @@ class IMCAPLitModule(LightningModule):
         # so it's worth to make sure validation metrics don't store results from these checks
         self.val_loss.reset()
         self.val_wer.reset()
+        self.val_bleu.reset()
         self.val_wer_best.reset()
+        self.val_bleu_best.reset()
 
     def model_step(
         self,
