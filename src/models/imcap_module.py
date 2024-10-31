@@ -2,7 +2,7 @@ import torch
 from typing import Any, Dict, Tuple
 from lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
-from torchmetrics.text import WordErrorRate
+from torchmetrics.text import WordErrorRate, BLEUScore
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
 
@@ -48,16 +48,22 @@ class IMCAPLitModule(LightningModule):
 
         # metric objects for calculating and averaging accuracy across batches
         self.train_wer = WordErrorRate()
+        self.train_bleu = BLEUScore()
         self.val_wer = WordErrorRate()
+        self.val_bleu = BLEUScore()
         self.test_wer = WordErrorRate()
+        self.test_bleu = BLEUScore()
 
         # for averaging loss across batches
         self.train_loss = MeanMetric()
         self.val_loss = MeanMetric()
         self.test_loss = MeanMetric()
 
-        # for tracking best so far validation word error rate
+        # for tracking best so far metrics
         self.val_wer_best = MaxMetric()
+        self.val_bleu_best = MaxMetric()
+        self.test_wer_best = MaxMetric()
+        self.test_bleu_best = MaxMetric()
 
     def on_train_start(self) -> None:
         """
@@ -120,9 +126,11 @@ class IMCAPLitModule(LightningModule):
 
         # update and log metrics
         self.train_loss(loss)
-        self.train_wer(preds, targets)
         self.log("train/loss", self.train_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.train_wer(preds, targets)
         self.log("train/wer", self.train_wer, on_step=False, on_epoch=True, prog_bar=True)
+        self.train_bleu(preds, targets)
+        self.log("train/bleu", self.train_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
         # return loss or backpropagation will fail
         return loss
@@ -149,19 +157,23 @@ class IMCAPLitModule(LightningModule):
 
         # update and log metrics
         self.val_loss(loss)
-        self.val_wer(preds, targets)
         self.log("val/loss", self.val_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.val_wer(preds, targets)
         self.log("val/wer", self.val_wer, on_step=False, on_epoch=True, prog_bar=True)
+        self.val_bleu(preds, targets)
+        self.log("val/bleu", self.val_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_validation_epoch_end(self) -> None:
         """
         Lightning hook that is called when a validation epoch ends.
         """
-        wer = self.val_wer.compute()  # get current val acc
-        self.val_wer_best(wer)  # update best so far val acc
-        # log `val_acc_best` as a value through `.compute()` method, instead of as a metric object
-        # otherwise metric would be reset by lightning after each epoch
+        wer = self.val_wer.compute()
+        self.val_wer_best(wer)
         self.log("val/wer_best", self.val_wer_best.compute(), sync_dist=True, prog_bar=True)
+
+        bleu = self.val_bleu.compute()
+        self.val_bleu_best(bleu)
+        self.log("val/bleu_best", bleu, sync_dist=True, prog_bar=True)
 
     def test_step(self, batch: Dict[str, torch.Tensor], batch_idx: int) -> None:
         """
@@ -178,15 +190,23 @@ class IMCAPLitModule(LightningModule):
 
         # update and log metrics
         self.test_loss(loss)
-        self.test_wer(preds, targets)
         self.log("test/loss", self.test_loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.test_wer(preds, targets)
         self.log("test/wer", self.test_wer, on_step=False, on_epoch=True, prog_bar=True)
+        self.test_bleu(preds, targets)
+        self.log("test/bleu", self.test_bleu, on_step=False, on_epoch=True, prog_bar=True)
 
     def on_test_epoch_end(self) -> None:
         """
         Lightning hook that is called when a test epoch ends.
         """
-        pass
+        wer = self.test_wer.compute()
+        self.test_wer_best(wer)
+        self.log("test/wer_best", self.test_wer_best.compute(), sync_dist=True, prog_bar=True)
+
+        bleu = self.test_bleu.compute()
+        self.test_bleu_best(bleu)
+        self.log("test/bleu_best", bleu, sync_dist=True, prog_bar=True)
 
     def setup(self, stage: str) -> None:
         """
