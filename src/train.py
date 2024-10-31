@@ -97,13 +97,13 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         log.info(f"Best ckpt path: {ckpt_path}")
 
     # push best model to HuggingFace
-    if cfg.get("hf_repo_id", None) is not None:
+    if cfg.model.get("hf_repo_id", None) is not None:
         if ckpt_path is not None:
             log.warning("Best ckpt not found! Pushing current weights...")
         else:
             log.info("Pushing best model to HuggingFace Hub!")
             model.load_from_checkpoint(ckpt_path)
-        model.net.push_to_hub(cfg.hf_repo_id)
+        model.net.push_to_hub(cfg.model.hf_repo_id)
 
     test_metrics = trainer.callback_metrics
 
