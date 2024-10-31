@@ -36,9 +36,11 @@ model:
     patience: 10
 
   net:
-    _target_: transformers.AutoModelForVision2Seq.from_pretrained
-    pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
-    cache_dir: models/huggingface
+    _target_: transformers.AutoModelForVision2Seq.from_config
+    config:
+      _target_: transformers.AutoConfig.from_pretrained
+      pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+      cache_dir: models/huggingface
 
   processor:
     _target_: transformers.AutoProcessor.from_pretrained
