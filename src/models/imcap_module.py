@@ -3,7 +3,7 @@ from typing import Any, Dict, Tuple
 from lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.text import WordErrorRate
-from transformers import AutoProcessor
+from transformers import AutoModelForVision2Seq, AutoProcessor
 
 
 class IMCAPLitModule(LightningModule):
@@ -13,19 +13,20 @@ class IMCAPLitModule(LightningModule):
 
     def __init__(
         self,
-        net: torch.nn.Module,
+        net: AutoModelForVision2Seq,
         processor: AutoProcessor,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
         compile: bool,
+        hf_repo_id: str = None,
     ) -> None:
         """
         Initialize a IMCAPLitModule.
 
         Parameters
         ----------
-        net : torch.nn.Module
-            The neural network model.
+        net : AutoModelForVision2Seq
+            The model to use for training.
         optimizer : torch.optim.Optimizer
             The optimizer to use for training.
         scheduler : torch.optim.lr_scheduler
@@ -130,7 +131,8 @@ class IMCAPLitModule(LightningModule):
         """
         Lightning hook that is called when a training epoch ends.
         """
-        pass
+        if self.hparams.hf_repo_id is not None:
+            self.net.push_to_hub(self.hparams.hf_repo_id)
 
     def validation_step(self, batch: Dict[str, torch.Tensor], batch_idx: int) -> None:
         """
