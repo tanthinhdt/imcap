@@ -3,6 +3,7 @@ from typing import Any, Dict, Tuple
 from lightning import LightningModule
 from torchmetrics import MaxMetric, MeanMetric
 from torchmetrics.text import WordErrorRate
+from transformers import AutoProcessor
 
 
 class IMCAPLitModule(LightningModule):
@@ -13,6 +14,7 @@ class IMCAPLitModule(LightningModule):
     def __init__(
         self,
         net: torch.nn.Module,
+        processor: AutoProcessor,
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler,
         compile: bool,
@@ -38,6 +40,7 @@ class IMCAPLitModule(LightningModule):
         self.save_hyperparameters(logger=False)
 
         self.net = net
+        self.processor = processor
 
         # loss function
         self.criterion = torch.nn.CrossEntropyLoss()
@@ -86,8 +89,15 @@ class IMCAPLitModule(LightningModule):
             - A tensor of target labels.
         """
         outputs = self.net(**batch)
-        preds = torch.argmax(outputs.logits, dim=-1)
-        return outputs.loss, preds, batch["input_ids"]
+        preds = self.processor.batch_decode(
+            torch.argmax(outputs.logits, dim=-1),
+            skip_special_tokens=True,
+        )
+        targets = self.processor.batch_decode(
+            batch["labels"],
+            skip_special_tokens=True,
+        )
+        return outputs.loss, preds, targets
 
     def training_step(self, batch: Dict[str, torch.Tensor], batch_idx: int) -> torch.Tensor:
         """
