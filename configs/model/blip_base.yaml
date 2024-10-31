@@ -25,3 +25,6 @@ processor:
 
 # compile model for faster training with pytorch 2.0
 compile: false
+
+# HuggingFace repo ID to push model
+hf_repo_id: null
