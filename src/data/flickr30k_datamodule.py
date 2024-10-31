@@ -83,6 +83,7 @@ class Flickr30kDataModule(LightningDataModule):
                 text=texts,
                 padding="max_length",
                 max_length=self.hparams.max_length,
+                truncation=True,
                 return_tensors="pt",
             )
             batch.update({"labels": batch["input_ids"]})
