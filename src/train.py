@@ -1,9 +1,8 @@
 from typing import Any, Dict, List, Optional, Tuple
 
 import hydra
-import lightning as L
 import rootutils
-import torch
+import lightning as L
 from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
@@ -96,6 +95,15 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
             ckpt_path = None
         trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
         log.info(f"Best ckpt path: {ckpt_path}")
+
+    # push best model to HuggingFace
+    if cfg.get("hf_repo_id", None) is not None:
+        if ckpt_path is not None:
+            log.warning("Best ckpt not found! Pushing current weights...")
+        else:
+            log.info("Pushing best model to HuggingFace Hub!")
+            model.load_from_checkpoint(ckpt_path)
+        model.net.push_to_hub(cfg.hf_repo_id)
 
     test_metrics = trainer.callback_metrics
 
