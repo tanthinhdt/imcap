@@ -37,13 +37,22 @@ log = RankedLogger(__name__, rank_zero_only=True)
 
 @task_wrapper
 def evaluate(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """Evaluates given checkpoint on a datamodule testset.
+    """
+    Evaluates given checkpoint on a datamodule testset.
 
-    This method is wrapped in optional @task_wrapper decorator, that controls the behavior during
-    failure. Useful for multiruns, saving info about the crash, etc.
+    This method is wrapped in optional @task_wrapper decorator,
+    that controls the behavior during failure.
+    Useful for multiruns, saving info about the crash, etc.
 
-    :param cfg: DictConfig configuration composed by Hydra.
-    :return: Tuple[dict, dict] with metrics and dict with all instantiated objects.
+    Parameters
+    ----------
+    cfg : DictConfig
+        A DictConfig configuration composed by Hydra.
+
+    Returns
+    -------
+    Tuple[Dict[str, Any], Dict[str, Any]]
+        A tuple with metrics and dict with all instantiated objects.
     """
     assert cfg.ckpt_path
 
@@ -84,9 +93,13 @@ def evaluate(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
 @hydra.main(version_base="1.3", config_path="../configs", config_name="eval.yaml")
 def main(cfg: DictConfig) -> None:
-    """Main entry point for evaluation.
+    """
+    Main entry point for evaluation.
 
-    :param cfg: DictConfig configuration composed by Hydra.
+    Parameters
+    ----------
+    cfg : DictConfig
+        A DictConfig object containing the configuration tree.
     """
     # apply extra utilities
     # (e.g. ask for tags if none are provided in cfg, print cfg tree, etc.)
