@@ -1,3 +1,4 @@
+import os
 import polars as pl
 from lightning import LightningDataModule
 from typing import Any, Dict, Optional, Tuple
@@ -23,7 +24,6 @@ class Flickr30kDataModule(LightningDataModule):
         batch_size: int = 64,
         num_workers: int = 0,
         pin_memory: bool = False,
-        seed: int = 42,
     ) -> None:
         """
         Initialize a Flickr30kDataModule instance.
@@ -40,8 +40,6 @@ class Flickr30kDataModule(LightningDataModule):
             The number of workers to use for data loading, by default 0.
         pin_memory : bool, optional
             Whether to use pinned memory for data loading, by default False.
-        seed : int, optional
-            The seed to use for reproducibility, by default 42.
         """
         super().__init__()
         assert 1 < len(train_val_test_split) < 4 and 0 < sum(train_val_test_split) <= 1.0, \
@@ -110,7 +108,9 @@ class Flickr30kDataModule(LightningDataModule):
                     "comment": pl.String,
                 },
             )
-            dataset = Dataset.from_polars(df).shuffle(seed=self.hparams.seed)
+            dataset = Dataset.from_polars(df)
+            if os.environ.get("PL_GlOBAL_SEED") is not None:
+                dataset = dataset.shuffle(seed=int(os.environ.get("PL_GLOBAL_SEED")))
             if len(self.hparams.train_val_test_split) == 2:
                 self.dataset = dataset.train_test_split(
                     train_size=self.hparams.train_val_test_split[0],
