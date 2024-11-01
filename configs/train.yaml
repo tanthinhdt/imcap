@@ -15,7 +15,7 @@ defaults:
 
   # experiment configs allow for version control of specific hyperparameters
   # e.g. best hyperparameters for given model and datamodule
-  - experiment: null
+  - experiment: flickr30k_blip-base_v1-0
 
   # config for hyperparameter optimization
   - hparams_search: null
