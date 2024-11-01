@@ -52,7 +52,7 @@ model:
 data:
   max_length: 128
   train_val_test_split: [0.8, 0.2]
-  batch_size: 16
+  batch_size: 12
   num_workers: 2
 
 logger:
