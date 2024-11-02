@@ -1,25 +1,20 @@
+# Image Captioning
+
 <div align="center">
 
-# Lightning-Hydra-Template
-
-[![python](https://img.shields.io/badge/-Python_3.8_%7C_3.9_%7C_3.10-blue?logo=python&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![pytorch](https://img.shields.io/badge/PyTorch_2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
+[![python](https://img.shields.io/badge/-Python_3.11-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![pytorch](https://img.shields.io/badge/Torch_2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
 [![lightning](https://img.shields.io/badge/-Lightning_2.0+-792ee5?logo=pytorchlightning&logoColor=white)](https://pytorchlightning.ai/)
 [![hydra](https://img.shields.io/badge/Config-Hydra_1.3-89b8cd)](https://hydra.cc/)
 [![black](https://img.shields.io/badge/Code%20Style-Black-black.svg?labelColor=gray)](https://black.readthedocs.io/en/stable/)
-[![isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/) <br>
-[![tests](https://github.com/ashleve/lightning-hydra-template/actions/workflows/test.yml/badge.svg)](https://github.com/ashleve/lightning-hydra-template/actions/workflows/test.yml)
-[![code-quality](https://github.com/ashleve/lightning-hydra-template/actions/workflows/code-quality-main.yaml/badge.svg)](https://github.com/ashleve/lightning-hydra-template/actions/workflows/code-quality-main.yaml)
-[![codecov](https://codecov.io/gh/ashleve/lightning-hydra-template/branch/main/graph/badge.svg)](https://codecov.io/gh/ashleve/lightning-hydra-template) <br>
-[![license](https://img.shields.io/badge/License-MIT-green.svg?labelColor=gray)](https://github.com/ashleve/lightning-hydra-template#license)
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ashleve/lightning-hydra-template/pulls)
-[![contributors](https://img.shields.io/github/contributors/ashleve/lightning-hydra-template.svg)](https://github.com/ashleve/lightning-hydra-template/graphs/contributors)
+[![isort](https://img.shields.io/badge/%20imports-isort-%231674b1)](https://pycqa.github.io/isort/)
+[![demo](https://img.shields.io/badge/Demo-HuggingFace-F7DF1E)](https://huggingface.co/spaces/tanthinhdt/IMCAP)
 
 </div>
 
 ## Description
 
-What it does
+In this project, I develop, train, and evaluate models for image captioning, inspired by BLIP's approach. The goal is to create a system that can generate descriptive and accurate captions for images. Additionally, I build a demo web app to showcase these models in action, providing an interactive platform for users to experience the capabilities of AI-driven image captioning firsthand.
 
 ## Installation
 
@@ -27,12 +22,12 @@ What it does
 
 ```bash
 # clone project
-git clone https://github.com/YourGithubName/your-repo-name
-cd your-repo-name
+git clone https://github.com/tanthinhdt/imcap
+cd imcap
 
 # [OPTIONAL] create conda environment
-conda create -n myenv python=3.9
-conda activate myenv
+conda create -n imcap python=3.11.10
+conda activate imcap
 
 # install pytorch according to instructions
 # https://pytorch.org/get-started/
@@ -45,14 +40,14 @@ pip install -r requirements.txt
 
 ```bash
 # clone project
-git clone https://github.com/YourGithubName/your-repo-name
-cd your-repo-name
+git clone https://github.com/tanthinhdt/imcap
+cd imcap
 
 # create conda environment and install dependencies
 conda env create -f environment.yaml -n myenv
 
 # activate conda environment
-conda activate myenv
+conda activate imcap
 ```
 
 ## How to run
