@@ -43,9 +43,6 @@ class IMCAPLitModule(LightningModule):
         self.net = net
         self.processor = processor
 
-        # loss function
-        self.criterion = torch.nn.CrossEntropyLoss()
-
         # metric objects for calculating and averaging accuracy across batches
         self.train_wer = WordErrorRate()
         self.train_bleu = BLEUScore()
