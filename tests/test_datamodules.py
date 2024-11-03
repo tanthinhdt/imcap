@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+from transformers import AutoProcessor
 from src.data import Flickr30kDataModule
 
 
@@ -29,27 +30,34 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
     train_val_test_split : tuple
         A tuple containing the train, validation, and test split ratios.
     """
-    data_dir = "data/"
-    processor = "Salesforce/blip-image-captioning-base"
-    image_size = 384
+    processor = AutoProcessor.from_pretrained(
+        "Salesforce/blip-image-captioning-base",
+        cache_dir="models/huggingface",
+    )
+    data_dir = "data/flickr30k"
+    comment_number = None
+    padding = "max_length"
     max_length = 128
+    truncation = True
+    image_mean = (0.48145466, 0.4578275, 0.40821073)
+    image_std = (0.26862954, 0.26130258, 0.27577711)
+    crop_size = 384
 
-    data_dir = Path(data_dir)
-    assert data_dir.exists(), \
-        f"{data_dir} does not exist. Make sure to download the dataset."
-
-    dataset_dir = data_dir / "flickr30k"
-    assert dataset_dir.exists(), \
-        f"{dataset_dir} does not exist. Make sure to download the dataset."
-    assert Path(dataset_dir, "results.csv").exists(), \
+    assert Path(data_dir, "results.csv").exists(), \
         "Metadata file does not exist. Make sure to include the metadata file."
-    assert Path(dataset_dir, "flickr30k_images").exists(), \
+    assert Path(data_dir, "flickr30k_images").exists(), \
         "Image directory does not exist. Make sure to include the image directory."
 
     dm = Flickr30kDataModule(
-        data_dir=dataset_dir,
         processor=processor,
+        data_dir=data_dir,
+        comment_number=comment_number,
+        padding=padding,
         max_length=max_length,
+        truncation=truncation,
+        image_mean=image_mean,
+        image_std=image_std,
+        crop_size=crop_size,
         train_val_test_split=train_val_test_split,
         batch_size=batch_size,
     )
@@ -65,9 +73,9 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         assert "train" in dm.dataset and "test" in dm.dataset, \
             "Dataset should be split into training and testing sets."
         num_datapoints = len(dm.dataset["train"]) + len(dm.dataset["test"])
-    assert num_datapoints == int(158_915 * sum(train_val_test_split)), \
+    assert num_datapoints == int(len(dm) * sum(train_val_test_split)), \
         (
-            f"Dataset size mismatch. Expected {int(158_915 * sum(train_val_test_split))}, "
+            f"Dataset size mismatch. Expected {int(len(dm) * sum(train_val_test_split))}, "
             f"but got {num_datapoints}."
         )
 
@@ -75,9 +83,9 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         "Dataloaders should be created after calling `setup`."
     batch = next(iter(dm.train_dataloader()))
 
-    assert batch["pixel_values"].shape == (batch_size, 3, image_size, image_size), \
+    assert batch["pixel_values"].shape == (batch_size, 3, crop_size, crop_size), \
         (
-            f"Images shape mismatch. Expected {(batch_size, 3, image_size, image_size)}, "
+            f"Images shape mismatch. Expected {(batch_size, 3, crop_size, crop_size)}, "
             f"but got {batch['pixel_values'].shape}."
         )
     assert batch["input_ids"].shape == (batch_size, max_length), \
@@ -89,4 +97,9 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         (
             f"Attention Mask shape mismatch. Expected {(batch_size, max_length)}, "
             f"but got {batch['attention_mask'].shape}."
+        )
+    assert batch["labels"].shape == (batch_size, max_length), \
+        (
+            f"Labels shape mismatch. Expected {(batch_size, max_length)}, "
+            f"but got {batch['labels'].shape}."
         )
