@@ -172,7 +172,7 @@ class IMCAPLitModule(LightningModule):
 
         bleu = self.val_bleu.compute()
         self.val_bleu_best(bleu)
-        self.log("val/bleu_best", self.test_bleu_best.compute(), sync_dist=True, prog_bar=True)
+        self.log("val/bleu_best", self.val_bleu_best.compute(), sync_dist=True, prog_bar=True)
 
     def test_step(self, batch: Dict[str, torch.Tensor], batch_idx: int) -> None:
         """
