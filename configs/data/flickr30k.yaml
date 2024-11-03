@@ -1,5 +1,5 @@
 _target_: src.data.flickr30k_datamodule.Flickr30kDataModule
-processor: Salesforce/blip-image-captioning-base
+processor: ${model.processor}
 data_dir: ${paths.data_dir}/flickr30k
 max_length: 64
 train_val_test_split: [0.8, 0.2] # train, (val,) test
