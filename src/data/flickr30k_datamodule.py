@@ -17,7 +17,7 @@ class Flickr30kDataModule(LightningDataModule):
 
     def __init__(
         self,
-        processor: str,
+        processor: AutoProcessor,
         data_dir: str = "data/flickr30k",
         max_length: int = 128,
         train_val_test_split: Tuple[float] = (0.8, 0.1, 0.1),
@@ -50,7 +50,7 @@ class Flickr30kDataModule(LightningDataModule):
         self.save_hyperparameters(logger=False)
 
         # data transformations
-        self.processor = AutoProcessor.from_pretrained(processor)
+        self.processor = processor
         self.transforms = transforms.Compose(
             [
                 transforms.ToTensor(),
