@@ -2,7 +2,7 @@ _target_: src.data.flickr30k_datamodule.Flickr30kDataModule
 processor: ${model.processor}
 data_dir: ${paths.data_dir}/flickr30k
 
-comment_number: null
+comment_number: 0
 padding: max_length
 max_length: 64
 truncation: True
