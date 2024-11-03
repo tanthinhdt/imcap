@@ -1,7 +1,7 @@
 import torch
 from typing import Any, Dict, Tuple
 from lightning import LightningModule
-from torchmetrics import MaxMetric, MeanMetric
+from torchmetrics import MinMetric, MaxMetric, MeanMetric
 from torchmetrics.text import WordErrorRate, BLEUScore
 from transformers import AutoModelForVision2Seq, AutoProcessor
 
@@ -57,9 +57,9 @@ class IMCAPLitModule(LightningModule):
         self.test_loss = MeanMetric()
 
         # for tracking best so far metrics
-        self.val_wer_best = MaxMetric()
+        self.val_wer_best = MinMetric()
         self.val_bleu_best = MaxMetric()
-        self.test_wer_best = MaxMetric()
+        self.test_wer_best = MinMetric()
         self.test_bleu_best = MaxMetric()
 
     def on_train_start(self) -> None:
