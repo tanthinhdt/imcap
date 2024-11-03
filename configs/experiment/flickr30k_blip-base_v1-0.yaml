@@ -51,10 +51,15 @@ model:
   compile: false
 
 data:
-  max_length: 128
+  padding: max_length
+  max_length: 64
+  truncation: True
+  image_mean: [0.48145466, 0.4578275, 0.40821073]
+  image_std: [0.26862954, 0.26130258, 0.27577711]
+  crop_size: 224
   train_val_test_split: [0.8, 0.2]
-  batch_size: 12
-  num_workers: 2
+  batch_size: 1
+  num_workers: 0
 
 logger:
   wandb:
