@@ -14,34 +14,29 @@
 </div>
 
 ## Table of Contents
+
 - [Image Captioning](#image-captioning)
   - [Table of Contents](#table-of-contents)
   - [Description](#description)
-  - [Architecture](#architecture)
   - [Results](#results)
   - [Installation](#installation)
-      - [Pip](#pip)
-      - [Conda](#conda)
+    - [Pip](#pip)
+    - [Conda](#conda)
   - [How to run](#how-to-run)
 
 ## Description
 
 In this project, I develop, train, and evaluate models for image captioning, inspired by BLIP's approach. The goal is to create a system that can generate descriptive and accurate captions for images. Additionally, I build a demo web app [here](https://huggingface.co/spaces/tanthinhdt/IMCAP) to showcase these models in action, providing an interactive platform for users to experience the capabilities of AI-driven image captioning firsthand.
 
-## Architecture
-
-
-
 ## Results
 
 | Model | Train WER | Train BLEU@4 | Test WER | Test BLEU@4 | Config | Checkpoint | Report | Paper |
 | ----- | --------- | ------------ | -------- | ----------- | ------ | ---------- | ------ | ----- |
-| BLIP Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config]() | [HuggingFace]() | [Wandb]() | [Arxiv](https://arxiv.org/abs/2201.12086) |
-| GIT Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config]() | [HuggingFace]() | [Wandb]() | [Arxiv](https://arxiv.org/abs/2201.12086) |
+| BLIP Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config](configs/experiment/flickr30k_blip-base_v1-0.yaml) | [HuggingFace](https://huggingface.co/tanthinhdt/flickr30k_blip-base_v1-0) | [Wandb](https://wandb.ai/tanthinhdt24/IMCAP/reports/BLIP-Base--VmlldzoxMDAwNzI5Mw) | [Arxiv](https://arxiv.org/abs/2201.12086) |
 
 ## Installation
 
-#### Pip
+### Pip
 
 ```bash
 # clone project
@@ -59,7 +54,7 @@ conda activate imcap
 pip install -r requirements.txt
 ```
 
-#### Conda
+### Conda
 
 ```bash
 # clone project
