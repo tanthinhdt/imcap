@@ -14,13 +14,15 @@
 </div>
 
 ## Table of Contents
-1. [Description](#description)
-2. [Architecture](#architecture)
-3. [Results](#results)
-4. [Installation](#installation)
-    * [Pip](#pip)
-    * [Conda](#conda)
-5. [How to run](#how-to-run)
+- [Image Captioning](#image-captioning)
+  - [Table of Contents](#table-of-contents)
+  - [Description](#description)
+  - [Architecture](#architecture)
+  - [Results](#results)
+  - [Installation](#installation)
+      - [Pip](#pip)
+      - [Conda](#conda)
+  - [How to run](#how-to-run)
 
 ## Description
 
@@ -32,9 +34,10 @@ In this project, I develop, train, and evaluate models for image captioning, ins
 
 ## Results
 
-| Model | Train WER | Train BLEU@4 | Test WER | Test BLEU@4 | Checkpoint | Report | Paper |
-| ----- | --------- | ------------ | -------- | ----------- | ---------- | ------ | ----- |
-| BLIP Base | 0.0 | 0.0 | 0.0 | 0.0 | [HuggingFace]() | [Wandb]() | [Arxiv](https://arxiv.org/abs/2201.12086) |
+| Model | Train WER | Train BLEU@4 | Test WER | Test BLEU@4 | Config | Checkpoint | Report | Paper |
+| ----- | --------- | ------------ | -------- | ----------- | ------ | ---------- | ------ | ----- |
+| BLIP Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config]() | [HuggingFace]() | [Wandb]() | [Arxiv](https://arxiv.org/abs/2201.12086) |
+| GIT Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config]() | [HuggingFace]() | [Wandb]() | [Arxiv](https://arxiv.org/abs/2201.12086) |
 
 ## Installation
 
