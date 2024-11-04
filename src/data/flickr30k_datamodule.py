@@ -12,8 +12,8 @@ from torchvision.transforms.v2 import (
     Compose,
     ToImage,
     ToDtype,
-    RandomResizedCrop,
-    RandAugment,
+    Resize,
+    CenterCrop,
     Normalize,
 )
 
@@ -31,9 +31,9 @@ class Flickr30kDataModule(LightningDataModule):
         padding: str = "max_length",
         max_length: int = 128,
         truncation: bool = True,
+        crop_size: int = 224,
         image_mean: Tuple[float] = (0.48145466, 0.4578275, 0.40821073),
         image_std: Tuple[float] = (0.26862954, 0.26130258, 0.27577711),
-        crop_size: int = 224,
         train_val_test_split: Tuple[float] = (0.8, 0.1, 0.1),
         batch_size: int = 64,
         num_workers: int = 0,
@@ -97,8 +97,8 @@ class Flickr30kDataModule(LightningDataModule):
                 LoadImage(image_dir=Path(data_dir) / "flickr30k_images"),
                 ToImage(),
                 ToDtype(dtype=torch.float32),
-                RandomResizedCrop(size=crop_size),
-                RandAugment(),
+                Resize(size=crop_size),
+                CenterCrop(size=crop_size),
                 Normalize(mean=image_mean, std=image_std),
             ]
         )
