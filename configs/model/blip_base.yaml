@@ -1,17 +1,16 @@
 _target_: src.models.imcap_module.IMCAPLitModule
 
 optimizer:
-  _target_: torch.optim.Adam
+  _target_: torch.optim.AdamW
   _partial_: true
-  lr: 0.001
-  weight_decay: 0.0
+  lr: 0.00001
+  weight_decay: 0.05
 
 scheduler:
-  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
   _partial_: true
-  mode: min
-  factor: 0.1
-  patience: 10
+  T_max: ${trainer.max_epochs}
+  eta_min: 0.000001
 
 net:
   _target_: transformers.AutoModelForVision2Seq.from_config
