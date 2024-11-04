@@ -1,0 +1,73 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /data: flickr30k
+  - override /model: blip_base
+  - override /callbacks: default
+  - override /trainer: default
+  - override /logger: wandb
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags: ["v1", "flickr30k", "blip_base"]
+
+seed: 42
+
+trainer:
+  min_epochs: 5
+  max_epochs: 10
+  gradient_clip_val: 0.0
+
+model:
+  optimizer:
+    _target_: torch.optim.Adam
+    _partial_: true
+    lr: 0.00001
+    weight_decay: 0.0
+
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    _partial_: true
+    mode: min
+    factor: 0.1
+    patience: 10
+
+  net:
+    _target_: transformers.AutoModelForVision2Seq.from_config
+    config:
+      _target_: transformers.AutoConfig.from_pretrained
+      pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+      cache_dir: models/huggingface
+
+  processor:
+    _target_: transformers.AutoProcessor.from_pretrained
+    pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+    cache_dir: models/huggingface
+
+  compile: false
+
+  hf_repo_id: null
+
+data:
+  use_all_comments: False
+  comment_number: 0
+  padding: max_length
+  max_length: 64
+  truncation: True
+  image_mean: [0.48145466, 0.4578275, 0.40821073]
+  image_std: [0.26862954, 0.26130258, 0.27577711]
+  crop_size: 224
+  train_val_test_split: [0.8, 0.2]
+  batch_size: 1
+  num_workers: 0
+
+logger:
+  wandb:
+    name: flickr30k_blip-base_v1-3
+    id: null
+    project: "IMCAP"
+    tags: ${tags}
