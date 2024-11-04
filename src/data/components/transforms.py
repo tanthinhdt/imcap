@@ -22,13 +22,15 @@ class SelectText:
         """
         self.index = index
 
-    def __call__(self, texts: List[str]) -> str:
+    def __call__(self, texts: Union[str, List[str]]) -> str:
         """
-        Select a text from a list of texts. If an index is not provided, a random text is selected.
+        Select a text from a list of texts.
+        If an index is not provided, a random text is selected.
+        If the input is a string, the same string is returned.
 
         Parameters
         ----------
-        texts : List[str]
+        texts : Union[str, List[str]]
             The list of texts to select from.
 
         Returns
@@ -36,6 +38,8 @@ class SelectText:
         str
             The selected text.
         """
+        if isinstance(texts, str):
+            return texts
         return texts[self.index] if self.index is not None else random.choice(texts)
 
 
