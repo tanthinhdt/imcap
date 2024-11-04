@@ -27,6 +27,7 @@ class Flickr30kDataModule(LightningDataModule):
         self,
         processor: AutoProcessor,
         data_dir: str = "data/flickr30k",
+        use_all_comments: bool = False,
         comment_number: int = None,
         padding: str = "max_length",
         max_length: int = 128,
@@ -48,6 +49,8 @@ class Flickr30kDataModule(LightningDataModule):
             The processor to use for tokenization.
         data_dir : str, optional
             The directory where the dataset is stored, by default "data/flickr30k".
+        use_all_comments : bool, optional
+            Whether to use all comments or a single comment, by default False.
         comment_number : int, optional
             The comment number to select, by default None.
         padding : str, optional
@@ -104,6 +107,7 @@ class Flickr30kDataModule(LightningDataModule):
         )
 
         self.dataset: Optional[DatasetDict] = None
+        self.num_examples: int = 0
 
         self.batch_size_per_device = batch_size
 
@@ -116,7 +120,7 @@ class Flickr30kDataModule(LightningDataModule):
         int
             The number of examples in the dataset.
         """
-        return 31_783
+        return self.num_examples
 
     def setup(self, stage: Optional[str] = None) -> None:
         """
@@ -169,7 +173,9 @@ class Flickr30kDataModule(LightningDataModule):
                     "comment": pl.String,
                 },
             )
-            df = df.group_by("image_name", maintain_order=True).all()
+            if not self.hparams.use_all_comments:
+                df = df.group_by("image_name", maintain_order=True).all()
+            self.num_examples = len(df)
             dataset = Dataset.from_polars(df)
             dataset = dataset.shuffle(seed=int(os.environ.get("PL_GLOBAL_SEED", 42)))
             if len(self.hparams.train_val_test_split) == 2:
