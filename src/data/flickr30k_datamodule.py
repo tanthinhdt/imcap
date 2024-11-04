@@ -12,7 +12,8 @@ from torchvision.transforms.v2 import (
     Compose,
     ToImage,
     ToDtype,
-    RandomResizedCrop,
+    Resize,
+    RandAugment,
     Normalize,
 )
 
@@ -96,7 +97,8 @@ class Flickr30kDataModule(LightningDataModule):
                 LoadImage(image_dir=Path(data_dir) / "flickr30k_images"),
                 ToImage(),
                 ToDtype(dtype=torch.float32),
-                RandomResizedCrop(size=crop_size),
+                Resize(size=crop_size),
+                RandAugment(),
                 Normalize(mean=image_mean, std=image_std),
             ]
         )
