@@ -35,6 +35,7 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         cache_dir="models/huggingface",
     )
     data_dir = "data/flickr30k"
+    use_all_comments = False
     comment_number = None
     padding = "max_length"
     max_length = 128
@@ -51,6 +52,7 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
     dm = Flickr30kDataModule(
         processor=processor,
         data_dir=data_dir,
+        use_all_comments=use_all_comments,
         comment_number=comment_number,
         padding=padding,
         max_length=max_length,
