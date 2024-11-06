@@ -17,7 +17,7 @@ wandb
 # aim>=3.16.2  # no lower than 3.16.2, see https://github.com/aimhubio/aim/issues/2550
 
 # --------- huggingface --------- #
-transformers==4.46.0
+transformers==4.46.2
 datasets==3.0.2
 
 # --------- others --------- #
