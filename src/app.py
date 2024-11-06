@@ -124,7 +124,7 @@ def main() -> None:
     st.sidebar.selectbox(
         label="Device",
         options=["CPU", "CUDA"],
-        index=1,
+        index=1 if torch.cuda.is_available() else 0,
         key="device",
         help="The device to use for inference.",
     )
