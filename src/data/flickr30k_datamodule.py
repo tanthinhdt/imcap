@@ -1,5 +1,4 @@
 import os
-import torch
 import polars as pl
 from pathlib import Path
 from lightning import LightningDataModule
@@ -7,15 +6,7 @@ from typing import Any, Dict, Optional, Tuple
 from torch.utils.data import DataLoader
 from datasets import Dataset, DatasetDict
 from transformers import AutoProcessor
-from src.data.components import SelectText, Strip, Tokenize, LoadImage
-from torchvision.transforms.v2 import (
-    Compose,
-    ToImage,
-    ToDtype,
-    Resize,
-    CenterCrop,
-    Normalize,
-)
+from PIL import Image
 
 
 class Flickr30kDataModule(LightningDataModule):
@@ -28,13 +19,10 @@ class Flickr30kDataModule(LightningDataModule):
         processor: AutoProcessor,
         data_dir: str = "data/flickr30k",
         use_all_comments: bool = False,
-        comment_number: int = None,
+        comment_number: int = 0,
         padding: str = "max_length",
         max_length: int = 128,
         truncation: bool = True,
-        crop_size: int = 224,
-        image_mean: Tuple[float] = (0.48145466, 0.4578275, 0.40821073),
-        image_std: Tuple[float] = (0.26862954, 0.26130258, 0.27577711),
         train_val_test_split: Tuple[float] = (0.8, 0.1, 0.1),
         batch_size: int = 64,
         num_workers: int = 0,
@@ -59,12 +47,6 @@ class Flickr30kDataModule(LightningDataModule):
             The maximum length of the sequence, by default 128.
         truncation : bool, optional
             Whether to truncate the sequence, by default True.
-        image_mean : Tuple[float], optional
-            The mean values for image normalization, by default (0.48145466, 0.4578275, 0.40821073).
-        image_std : Tuple[float], optional
-            The standard deviation values for image normalization, by default (0.26862954, 0.26130258, 0.27577711).
-        crop_size : int, optional
-            The size of the crop, by default 224.
         train_val_test_split : Tuple[float], optional
             The split ratio for the train, validation, and test sets, by default (0.8, 0.1, 0.1).
         batch_size : int, optional
@@ -83,28 +65,7 @@ class Flickr30kDataModule(LightningDataModule):
         self.save_hyperparameters(logger=False)
 
         # data transformations
-        self.text_transforms = Compose(
-            [
-                SelectText(index=comment_number),
-                Strip(),
-                Tokenize(
-                    processor=processor,
-                    max_length=max_length,
-                    padding=padding,
-                    truncation=truncation,
-                ),
-            ]
-        )
-        self.vision_transforms = Compose(
-            [
-                LoadImage(image_dir=Path(data_dir) / "flickr30k_images"),
-                ToImage(),
-                ToDtype(dtype=torch.float32),
-                Resize(size=crop_size),
-                CenterCrop(size=crop_size),
-                Normalize(mean=image_mean, std=image_std),
-            ]
-        )
+        self.processor = processor
 
         self.dataset: Optional[DatasetDict] = None
         self.num_examples: int = 0
@@ -132,26 +93,21 @@ class Flickr30kDataModule(LightningDataModule):
             The stage to setup, by default
         """
         def transform(batch):
-            transformed_batch = {
-                "pixel_values": [],
-                "input_ids": [],
-                "attention_mask": [],
-            }
-
-            for image_name in batch["image_name"]:
-                outputs = self.vision_transforms(image_name)
-                transformed_batch["pixel_values"].append(outputs.squeeze(0))
-
-            for comment in batch["comment"]:
-                outputs = self.text_transforms(comment)
-                for key in outputs:
-                    transformed_batch[key].append(outputs[key].squeeze(0))
-
-            for key in transformed_batch:
-                transformed_batch[key] = torch.stack(transformed_batch[key])
-            transformed_batch["labels"] = transformed_batch["input_ids"].clone()
-
-            return transformed_batch
+            images = [
+                Image.open(Path(self.hparams.data_dir) / f"flickr30k_images/{image_name}")
+                for image_name in batch["image_name"]
+            ]
+            texts = [comment.strip() for comment in batch["comment"]]
+            batch = self.processor(
+                images=images,
+                text=texts,
+                padding=self.hparams.padding,
+                max_length=self.hparams.max_length,
+                truncation=self.hparams.truncation,
+                return_tensors="pt",
+            )
+            batch.update({"labels": batch["input_ids"]})
+            return batch
 
         # Divide batch size by the number of devices.
         if self.trainer is not None:
@@ -174,7 +130,7 @@ class Flickr30kDataModule(LightningDataModule):
                 },
             )
             if not self.hparams.use_all_comments:
-                df = df.group_by("image_name", maintain_order=True).all()
+                df = df.filter(pl.col("comment_number") == self.hparams.comment_number)
             self.num_examples = len(df)
             dataset = Dataset.from_polars(df)
             dataset = dataset.shuffle(seed=int(os.environ.get("PL_GLOBAL_SEED", 42)))
