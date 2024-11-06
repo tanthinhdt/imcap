@@ -33,7 +33,7 @@ The Flickr30k dataset is divided into training and testing sets with a 70/30 spl
 
 | Model | Test WER | Test BLEU@4 | Train WER | Train BLEU@4 | Config | Checkpoint | Report | Paper |
 | ----- | --------- | ------------ | -------- | ----------- | ------ | ---------- | ------ | ----- |
-| BLIP Base | 59.15 | 14.11 | 55.61 | 16.11 | [Config](configs/experiment/flickr30k_blip-base_v2-0.yaml) | [HuggingFace]([tanthinhdt/blip-base_with-pretrained_flickr30k](https://huggingface.co/tanthinhdt/blip-base_with-pretrained_flickr30k)) | [Wandb](https://wandb.ai/tanthinhdt24/IMCAP/reports/BLIP-Base--VmlldzoxMDAwNzI5Mw) | [Arxiv](https://arxiv.org/abs/2201.12086) |
+| BLIP Base | 59.15 | 14.11 | 55.61 | 16.11 | [Config](configs/experiment/flickr30k_blip-base_v2-0.yaml) | [HuggingFace](https://huggingface.co/tanthinhdt/blip-base_with-pretrained_flickr30k) | [Wandb](https://wandb.ai/tanthinhdt24/IMCAP/reports/BLIP-Base--VmlldzoxMDAwNzI5Mw) | [Arxiv](https://arxiv.org/abs/2201.12086) |
 
 ## Demo
 
