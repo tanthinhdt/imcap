@@ -18,7 +18,7 @@ wandb
 
 # --------- huggingface --------- #
 transformers==4.46.0
-datasets==3.0.2
+datasets==3.1.0
 
 # --------- others --------- #
 rootutils       # standardizing the project root setup
