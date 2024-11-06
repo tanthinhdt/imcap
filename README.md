@@ -37,7 +37,7 @@ The Flickr30k dataset is divided into training and testing sets with a 70/30 spl
 
 ## Demo
 
-You can this [notebook](notebooks/inference.ipynb) or this [demo](https://huggingface.co/spaces/tanthinhdt/IMCAP) on HuggingFace for inference. You can also use the Streamlit demo offline by running this command from the root directory.
+You can this [notebook](notebooks/inference.ipynb) ([Colab](https://colab.research.google.com/drive/1nwZMduGusla-5esQPTZJjuEkJlu_j4j1?usp=sharing)) or this [demo](https://huggingface.co/spaces/tanthinhdt/IMCAP) on HuggingFace for inference. You can also use the Streamlit demo offline by running this command from the root directory.
 
 ```
 streamlit src/app.py
