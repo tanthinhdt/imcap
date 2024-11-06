@@ -1,30 +1,10 @@
+import torch
+import urllib
 import streamlit as st
+from io import BytesIO
 from time import time
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
-
-
-def load_model_and_processor() -> None:
-    """
-    Load the model and processor.
-    """
-    st.session_state.model = AutoModelForVision2Seq.from_pretrained(
-        st.session_state.model_id,
-        cache_dir="models/huggingface",
-    )
-    st.session_state.model.eval()
-
-    st.session_state.processor = AutoProcessor.from_pretrained(
-        st.session_state.model_id,
-        cache_dir="models/huggingface",
-    )
-
-
-def to_device() -> None:
-    """
-    Move the model to the selected device.
-    """
-    st.session_state.model.to(st.session_state.device.lower())
 
 
 def scale_image(image: Image.Image, target_height: int = 500) -> Image.Image:
@@ -57,6 +37,15 @@ def upload_image() -> None:
         st.session_state.image = Image.open(st.session_state.file_uploader)
 
 
+def read_image_from_url() -> None:
+    """
+    Read an image from a URL.
+    """
+    if st.session_state.image_url is not None:
+        with urllib.request.urlopen(st.session_state.image_url) as response:
+            st.session_state.image = Image.open(BytesIO(response.read()))
+
+
 def inference() -> None:
     """
     Perform inference on an image and generate a caption.
@@ -67,6 +56,7 @@ def inference() -> None:
         return_tensors="pt",
     )
     outputs = {k: v.to(st.session_state.device.lower()) for k, v in outputs.items()}
+    st.session_state.model.to(st.session_state.device.lower())
     logits = st.session_state.model.generate(
         **outputs,
         max_length=st.session_state.max_length,
@@ -76,8 +66,12 @@ def inference() -> None:
         logits[0], skip_special_tokens=True
     )
     end_time = time()
+
     st.session_state.inference_time = round(end_time - start_time, 2)
     st.session_state.caption = caption
+
+    st.session_state.model.to("cpu")
+    torch.cuda.empty_cache()
 
 
 def main() -> None:
@@ -86,10 +80,10 @@ def main() -> None:
     """
     if "model" not in st.session_state:
         st.session_state.model = AutoModelForVision2Seq.from_pretrained(
-            "Salesforce/blip-image-captioning-base",
+            "tanthinhdt/blip-base_with-pretrained_flickr30k",
             cache_dir="models/huggingface",
         )
-        st.session_state.model.eval().to("cuda")
+        st.session_state.model.eval()
     if "processor" not in st.session_state:
         st.session_state.processor = AutoProcessor.from_pretrained(
             "Salesforce/blip-image-captioning-base",
@@ -119,21 +113,18 @@ def main() -> None:
         key="file_uploader",
         help="Upload an image to generate a caption.",
     )
+    st.sidebar.text_input(
+        "Image URL",
+        on_change=read_image_from_url,
+        key="image_url",
+        help="Enter the URL of an image to generate a caption.",
+    )
     st.sidebar.divider()
     st.sidebar.header("Settings")
-    st.sidebar.selectbox(
-        label="Model ID",
-        options=["Salesforce/blip-image-captioning-base"],
-        index=0,
-        on_change=load_model_and_processor,
-        key="model_id",
-        help="The model to use for image captioning.",
-    )
     st.sidebar.selectbox(
         label="Device",
         options=["CPU", "CUDA"],
         index=1,
-        on_change=to_device,
         key="device",
         help="The device to use for inference.",
     )
@@ -141,7 +132,7 @@ def main() -> None:
         label="Max length",
         min_value=32,
         max_value=128,
-        value=128,
+        value=64,
         step=1,
         key="max_length",
         help="The maximum length of the generated caption.",
@@ -149,7 +140,7 @@ def main() -> None:
     st.sidebar.number_input(
         label="Number of beams",
         min_value=1,
-        max_value=8,
+        max_value=10,
         value=4,
         step=1,
         key="num_beams",
