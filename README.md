@@ -15,14 +15,13 @@
 
 ## Table of Contents
 
-- [Image Captioning](#image-captioning)
-  - [Table of Contents](#table-of-contents)
-  - [Description](#description)
-  - [Results](#results)
-  - [Installation](#installation)
-    - [Pip](#pip)
-    - [Conda](#conda)
-  - [How to run](#how-to-run)
+- [Description](#description)
+- [Results](#results)
+- [Installation](#installation)
+  - [Pip](#pip)
+  - [Conda](#conda)
+- [Training](#training)
+- [Inference](#inference)
 
 ## Description
 
@@ -30,9 +29,19 @@ In this project, I develop, train, and evaluate models for image captioning, ins
 
 ## Results
 
-| Model | Train WER | Train BLEU@4 | Test WER | Test BLEU@4 | Config | Checkpoint | Report | Paper |
+The Flickr30k dataset is divided into training and testing sets with a 70/30 split.
+
+| Model | Test WER | Test BLEU@4 | Train WER | Train BLEU@4 | Config | Checkpoint | Report | Paper |
 | ----- | --------- | ------------ | -------- | ----------- | ------ | ---------- | ------ | ----- |
-| BLIP Base | 0.0 | 0.0 | 0.0 | 0.0 | [Config](configs/experiment/flickr30k_blip-base_v1-0.yaml) | [HuggingFace](https://huggingface.co/tanthinhdt/flickr30k_blip-base_v1-0) | [Wandb](https://wandb.ai/tanthinhdt24/IMCAP/reports/BLIP-Base--VmlldzoxMDAwNzI5Mw) | [Arxiv](https://arxiv.org/abs/2201.12086) |
+| BLIP Base | 59.15 | 14.11 | 55.61 | 16.11 | [Config](configs/experiment/flickr30k_blip-base_v2-0.yaml) | [HuggingFace](tanthinhdt/blip-base_with-pretrained_flickr30k) | [Wandb](https://wandb.ai/tanthinhdt24/IMCAP/reports/BLIP-Base--VmlldzoxMDAwNzI5Mw) | [Arxiv](https://arxiv.org/abs/2201.12086) |
+
+## Demo
+
+You can this [notebook](notebooks/inference.ipynb) or this [demo](https://huggingface.co/spaces/tanthinhdt/IMCAP) on HuggingFace for inference. You can also use the Streamlit demo offline by running this command from the root directory.
+
+```
+streamlit src/app.py
+```
 
 ## Installation
 
@@ -68,7 +77,7 @@ conda env create -f environment.yaml -n imcap
 conda activate imcap
 ```
 
-## How to run
+## Training
 
 Train model with default configuration
 
