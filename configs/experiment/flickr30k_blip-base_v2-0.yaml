@@ -53,8 +53,6 @@ data:
   use_all_comments: False
   comment_number: 0
   padding: longest
-  # max_length: 64
-  # truncation: True
   train_val_test_split: [0.7, 0.3]
   batch_size: 16
   num_workers: 8
