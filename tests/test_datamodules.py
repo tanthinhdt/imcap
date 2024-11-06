@@ -36,12 +36,10 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
     )
     data_dir = "data/flickr30k"
     use_all_comments = False
-    comment_number = None
+    comment_number = 0
     padding = "max_length"
     max_length = 128
     truncation = True
-    image_mean = (0.48145466, 0.4578275, 0.40821073)
-    image_std = (0.26862954, 0.26130258, 0.27577711)
     crop_size = 384
 
     assert Path(data_dir, "results.csv").exists(), \
@@ -57,9 +55,6 @@ def test_flickr30k_datamodule(batch_size: int, train_val_test_split: tuple) -> N
         padding=padding,
         max_length=max_length,
         truncation=truncation,
-        image_mean=image_mean,
-        image_std=image_std,
-        crop_size=crop_size,
         train_val_test_split=train_val_test_split,
         batch_size=batch_size,
     )

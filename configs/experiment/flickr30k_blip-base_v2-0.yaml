@@ -5,7 +5,7 @@
 
 defaults:
   - override /data: flickr30k
-  - override /model: blip_base
+  - override /model: blip_base_pretrained
   - override /callbacks: default
   - override /trainer: default
   - override /logger: wandb
@@ -26,21 +26,19 @@ model:
   optimizer:
     _target_: torch.optim.AdamW
     _partial_: true
-    lr: 0.00001
+    lr: 0.000001
     weight_decay: 0.05
 
   scheduler:
     _target_: torch.optim.lr_scheduler.CosineAnnealingLR
     _partial_: true
     T_max: ${trainer.max_epochs}
-    eta_min: 0.000001
+    eta_min: 0.0000001
 
   net:
-    _target_: transformers.AutoModelForVision2Seq.from_config
-    config:
-      _target_: transformers.AutoConfig.from_pretrained
-      pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
-      cache_dir: models/huggingface
+    _target_: transformers.AutoModelForVision2Seq.from_pretrained
+    pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+    cache_dir: models/huggingface
 
   processor:
     _target_: transformers.AutoProcessor.from_pretrained
@@ -54,15 +52,10 @@ model:
 data:
   use_all_comments: False
   comment_number: 0
-  padding: max_length
-  max_length: 64
-  truncation: True
-  image_mean: [0.48145466, 0.4578275, 0.40821073]
-  image_std: [0.26862954, 0.26130258, 0.27577711]
-  crop_size: 224
-  train_val_test_split: [0.8, 0.2]
-  batch_size: 1
-  num_workers: 0
+  padding: longest
+  train_val_test_split: [0.7, 0.3]
+  batch_size: 16
+  num_workers: 8
 
 logger:
   wandb:

@@ -5,7 +5,7 @@
 defaults:
   - _self_
   - data: flickr30k
-  - model: blip_base
+  - model: blip_base_pretrained
   - callbacks: default
   - logger: null # set logger here or use command line (e.g. `python train.py logger=tensorboard`)
   - trainer: default
@@ -15,7 +15,7 @@ defaults:
 
   # experiment configs allow for version control of specific hyperparameters
   # e.g. best hyperparameters for given model and datamodule
-  - experiment: flickr30k_blip-base_v1-0
+  - experiment: flickr30k_blip-base_v2-0
 
   # config for hyperparameter optimization
   - hparams_search: null
