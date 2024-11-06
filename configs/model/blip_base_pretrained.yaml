@@ -1,0 +1,29 @@
+_target_: src.models.imcap_module.IMCAPLitModule
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 0.00001
+  weight_decay: 0.05
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  _partial_: true
+  T_max: ${trainer.max_epochs}
+  eta_min: 0.000001
+
+net:
+  _target_: transformers.AutoModelForVision2Seq.from_pretrained
+  pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+  cache_dir: models/huggingface
+
+processor:
+  _target_: transformers.AutoProcessor.from_pretrained
+  pretrained_model_name_or_path: Salesforce/blip-image-captioning-base
+  cache_dir: models/huggingface
+
+# compile model for faster training with pytorch 2.0
+compile: false
+
+# HuggingFace repo ID to push model
+hf_repo_id: null
